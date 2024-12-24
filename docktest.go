@@ -23,7 +23,8 @@ type Container interface {
 }
 
 type ContainerData struct {
-	Name string
+	Name      string
+	LocalPort int
 }
 
 func StartContainer(config ContainerConfig) *ContainerData {
@@ -55,7 +56,7 @@ func StartContainer(config ContainerConfig) *ContainerData {
 
 	log.Println(fmt.Sprintf("Container started: %s", name))
 
-	return &ContainerData{Name: name}
+	return &ContainerData{Name: name, LocalPort: config.LocalPort}
 }
 
 func (c ContainerData) Stop() {
