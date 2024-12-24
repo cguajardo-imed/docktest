@@ -20,6 +20,10 @@ type Container interface {
 	Stop()
 	IsRunning() bool
 	Reload()
+
+	// Getters
+	GetName() string
+	GetLocalPort() int
 }
 
 type ContainerData struct {
@@ -85,4 +89,12 @@ func (c ContainerData) Reload() {
 		panic(err)
 	}
 	log.Println(fmt.Sprintf("Container %s reloaded", c.Name))
+}
+
+func (c ContainerData) GetName() string {
+	return c.Name
+}
+
+func (c ContainerData) GetLocalPort() int {
+	return c.LocalPort
 }
