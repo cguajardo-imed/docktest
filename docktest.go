@@ -57,7 +57,7 @@ func StartContainer(config ContainerConfig) *ContainerData {
 	err = cmd.Wait()
 	if err != nil {
 		log.Println(">>> Error::Wait", err)
-		return nil
+		// return nil
 	}
 
 	log.Println(fmt.Sprintf("Container started: %s", name))
