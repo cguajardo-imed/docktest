@@ -3,7 +3,6 @@ package docktest
 import (
 	"crypto/md5"
 	"fmt"
-	"log"
 	"os/exec"
 	"time"
 )
@@ -51,27 +50,29 @@ func StartContainer(config ContainerConfig) *ContainerData {
 
 	err := cmd.Start()
 	if err != nil {
-		log.Println(">>> Error::Start:", err)
+		Error("Error::Start:", err.Error())
 		return nil
 	}
 	err = cmd.Wait()
 	if err != nil {
-		log.Println(">>> Error::Wait", err)
-		// return nil
+		Error("Error::Wait:", err.Error())
 	}
 
-	log.Println(fmt.Sprintf("Container started: %s", name))
+	cd := &ContainerData{Name: name, LocalPort: config.LocalPort}
+	if cd.IsRunning() {
+		Success(fmt.Sprintf("Container %s started successfully", name))
+	}
 
-	return &ContainerData{Name: name, LocalPort: config.LocalPort}
+	return cd
 }
 
 func (c ContainerData) Stop() {
 	cmd := exec.Command("docker", "stop", c.Name)
 	err := cmd.Run()
 	if err != nil {
-		log.Println(fmt.Sprintf(">>> Error stopping container %s", c.Name))
+		Error("Error::Stop:", err.Error())
 	} else {
-		log.Println(fmt.Sprintf("Container %s stopped", c.Name))
+		Success(fmt.Sprintf("Container %s stopped", c.Name))
 	}
 }
 
@@ -81,7 +82,7 @@ func (c ContainerData) IsRunning() bool {
 	if err != nil {
 		return false
 	}
-	log.Println(fmt.Sprintf("Container %s is running", c.Name))
+	Info(fmt.Sprintf("Container %s is running", c.Name))
 	return true
 }
 
@@ -89,9 +90,9 @@ func (c ContainerData) Reload() {
 	cmd := exec.Command("docker", "restart", c.Name)
 	err := cmd.Run()
 	if err != nil {
-		log.Println(fmt.Sprintf(">>> Error restarting container %s", c.Name))
+		Error("Error::Reload:", fmt.Sprintf("can't restart the container %s", c.Name))
 	} else {
-		log.Println(fmt.Sprintf("Container %s reloaded", c.Name))
+		Info(fmt.Sprintf("Container %s reloaded", c.Name))
 	}
 }
 
