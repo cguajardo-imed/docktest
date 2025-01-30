@@ -69,9 +69,10 @@ func (c ContainerData) Stop() {
 	cmd := exec.Command("docker", "stop", c.Name)
 	err := cmd.Run()
 	if err != nil {
-		panic(err)
+		log.Println(fmt.Sprintf(">>> Error stopping container %s", c.Name))
+	} else {
+		log.Println(fmt.Sprintf("Container %s stopped", c.Name))
 	}
-	log.Println(fmt.Sprintf("Container %s stopped", c.Name))
 }
 
 func (c ContainerData) IsRunning() bool {
@@ -88,9 +89,10 @@ func (c ContainerData) Reload() {
 	cmd := exec.Command("docker", "restart", c.Name)
 	err := cmd.Run()
 	if err != nil {
-		panic(err)
+		log.Println(fmt.Sprintf(">>> Error restarting container %s", c.Name))
+	} else {
+		log.Println(fmt.Sprintf("Container %s reloaded", c.Name))
 	}
-	log.Println(fmt.Sprintf("Container %s reloaded", c.Name))
 }
 
 func (c ContainerData) GetName() string {
