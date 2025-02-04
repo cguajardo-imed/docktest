@@ -13,6 +13,7 @@ type ContainerConfig struct {
 	LocalPort     int               // eg. 6379, this is the port that the container will use to expose the image to you.
 	ContainerPort int               // eg. 6379, this is the internal port of the container.
 	Environment   map[string]string // eg. {"REDIS_PASSWORD": "123456"}
+	Command       string            // eg. --bind_ip_all or sh -c "redis-server --bind_ip_all"
 }
 
 type Container interface {
@@ -38,7 +39,7 @@ func StartContainer(config ContainerConfig) *ContainerData {
 
 	cmd := exec.Command("docker", "run", "-d", "--rm",
 		"-p", fmt.Sprintf("%d:%d", config.LocalPort, config.ContainerPort),
-		"--name", name)
+		"--name", name, config.Command)
 
 	if len(config.Environment) > 0 {
 		for k, v := range config.Environment {
@@ -53,10 +54,7 @@ func StartContainer(config ContainerConfig) *ContainerData {
 		Error("Error::Start:", err.Error())
 		return nil
 	}
-	err = cmd.Wait()
-	if err != nil {
-		Error("Error::Wait:", err.Error())
-	}
+	_ = cmd.Wait()
 
 	cd := &ContainerData{Name: name, LocalPort: config.LocalPort}
 	if cd.IsRunning() {
