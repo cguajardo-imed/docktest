@@ -54,11 +54,15 @@ func StartContainer(config ContainerConfig) *ContainerData {
 		Error("Error::Start:", err.Error())
 		return nil
 	}
+	time.Sleep(time.Second * 1)
 	_ = cmd.Wait()
 
 	cd := &ContainerData{Name: name, LocalPort: config.LocalPort}
+	Info(cmd.String())
 	if cd.IsRunning() {
 		Success(fmt.Sprintf("Container %s started successfully", name))
+	} else {
+		Warn(fmt.Sprintf("Seems container %s is not running", name))
 	}
 
 	return cd
