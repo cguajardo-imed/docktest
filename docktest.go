@@ -35,11 +35,11 @@ func StartContainer(config ContainerConfig) *ContainerData {
 	hash := md5.Sum([]byte(
 		fmt.Sprintf("%s-%v--%v", config.ImageName, time.Now(), &config.TestName),
 	))
-	name := fmt.Sprintf("docktest-%x", hash)
+	name := fmt.Sprintf("docktest-%x", hash[0:8])
 
 	cmd := exec.Command("docker", "run", "-d", "--rm",
 		"-p", fmt.Sprintf("%d:%d", config.LocalPort, config.ContainerPort),
-		"--name", name, config.Command)
+		"--name", name)
 
 	if len(config.Environment) > 0 {
 		for k, v := range config.Environment {
@@ -47,7 +47,7 @@ func StartContainer(config ContainerConfig) *ContainerData {
 		}
 	}
 
-	cmd.Args = append(cmd.Args, config.ImageName)
+	cmd.Args = append(cmd.Args, config.ImageName, config.Command)
 
 	err := cmd.Start()
 	if err != nil {
