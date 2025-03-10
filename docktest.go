@@ -8,12 +8,13 @@ import (
 )
 
 type ContainerConfig struct {
-	TestName      *string           // eg. TestUserCreate
-	ImageName     string            // eg. redis, redis:latest, redis:alpine
-	LocalPort     int               // eg. 6379, this is the port that the container will use to expose the image to you.
-	ContainerPort int               // eg. 6379, this is the internal port of the container.
-	Environment   map[string]string // eg. {"REDIS_PASSWORD": "123456"}
-	Command       string            // eg. --bind_ip_all or sh -c "redis-server --bind_ip_all"
+	TestName         *string           // eg. TestUserCreate
+	ImageName        string            // eg. redis, redis:latest, redis:alpine
+	LocalPort        int               // eg. 6379, this is the port that the container will use to expose the image to you.
+	ContainerPort    int               // eg. 6379, this is the internal port of the container.
+	Environment      map[string]string // eg. {"REDIS_PASSWORD": "123456"}
+	Command          string            // eg. --bind_ip_all or sh -c "redis-server --bind_ip_all"
+	WaitForColdStart *int              // Give a time to wait for the container to start
 }
 
 type Container interface {
@@ -31,11 +32,16 @@ type ContainerData struct {
 	LocalPort int
 }
 
+var DefaultColdStartWait int = 2
+
 func StartContainer(config ContainerConfig) *ContainerData {
 	hash := md5.Sum([]byte(
 		fmt.Sprintf("%s-%v--%v", config.ImageName, time.Now(), &config.TestName),
 	))
-	name := fmt.Sprintf("docktest-%x", hash[0:8])
+	name := fmt.Sprintf("docktest-%x", hash[0:6])
+	if config.WaitForColdStart == nil {
+		config.WaitForColdStart = &DefaultColdStartWait
+	}
 
 	cmd := exec.Command("docker", "run", "-d", "--rm",
 		"-p", fmt.Sprintf("%d:%d", config.LocalPort, config.ContainerPort),
@@ -54,7 +60,7 @@ func StartContainer(config ContainerConfig) *ContainerData {
 		Error("Error::Start:", err.Error())
 		return nil
 	}
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 2)
 	_ = cmd.Wait()
 
 	cd := &ContainerData{Name: name, LocalPort: config.LocalPort}
