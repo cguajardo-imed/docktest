@@ -15,10 +15,16 @@ jobs:
           fetch-depth: 0
           
       - name: checking gitleaks action
-        uses: cguajardo-imed/action@v0.0.2
+        uses: cguajardo-imed/action@v0.0.8
         id: gitleaks
 
-      - name: Get Gitleaks Report
+      - name: Get Gitleaks Results 
         if: always()
-        run: echo "${{ steps.gitleaks.outputs.report }}"
+        run: |
+          echo "Gitleaks success:"
+          echo "${{ steps.gitleaks.outputs.success }}"
+          echo "Gitleaks leaks found:"
+          echo "${{ steps.gitleaks.outputs.leaks_found }}"
+          echo "Gitleaks exit code:"
+          echo "${{ steps.gitleaks.outputs.gitleaks_exit_code }}"
         
